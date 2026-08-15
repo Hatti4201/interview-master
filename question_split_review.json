@@ -1,0 +1,180 @@
+{
+  "reviewed_at": "2026-08-01",
+  "policy": "Split composite records into atomic English questions. Every child keeps the original interview and full original source text. Non-question headings, vague notes, and resource-only links remain in raw_records but are removed from the canonical question library.",
+  "split": {
+    "994": [
+      "Describe your most recent project.",
+      "Which services did you build in your most recent project?",
+      "Which Java version did your most recent project use?",
+      "What are sealed classes and records in Java 17?",
+      "What problems or limitations can Java records introduce?",
+      "What does the @SpringBootApplication annotation do?",
+      "How do you customize a Spring Boot application? Give a specific example.",
+      "What are the disadvantages of JPA?",
+      "What is the JPA N+1 query problem, and how do you solve it?",
+      "Design an asynchronous document-processing API that supports document submission, status queries, and duplicate concurrent requests."
+    ],
+    "1150": [
+      "What problems have you encountered when using Spring?",
+      "Design a meeting-room reservation system."
+    ],
+    "1394": [
+      "What is Spring Boot Actuator?",
+      "How are JWT and OAuth 2.0 used together?",
+      "How do you improve code structure? Give an example."
+    ],
+    "1925": [
+      "Debug the provided services and identify their errors.",
+      "Build a React addition feature for two input numbers."
+    ],
+    "3487": [
+      "How do you handle a technical disagreement with a teammate?",
+      "How do you handle technical debt when clients depend on an old API and engineering resources are limited?",
+      "How do you preserve system A's security when its data is moved into system B?",
+      "Describe a cross-team collaboration experience.",
+      "How do you secure an LLM-based system?",
+      "How do you handle an unexpected DDL change?",
+      "Describe a leadership experience.",
+      "Describe your team's architecture.",
+      "What are you looking for in a new company?",
+      "How do you understand unfamiliar code when backfilling another engineer's role?",
+      "How do you refactor legacy code?",
+      "Describe your data-pipeline experience.",
+      "What project are you most proud of?",
+      "When shipping a new product, how do you balance delivery speed and code quality?",
+      "What motivates you to work each day?",
+      "What does your typical workday look like?",
+      "How do you keep up with AI and technology news?"
+    ],
+    "3529": [
+      "Why would you use FastAPI instead of building a REST framework manually?",
+      "What is AWS Lambda?",
+      "What is serverless computing?",
+      "Compare AWS Fargate and AWS Lambda.",
+      "What are the benefits of AWS Lambda?",
+      "Explain Kubernetes architecture.",
+      "How do you use Docker in your projects?",
+      "Have you built a CI/CD pipeline with GitHub?",
+      "Compare SQL and NoSQL databases.",
+      "Compare MongoDB and DynamoDB. Which is better for autoscaling?",
+      "Which database would you choose for highly transactional data that must always be current?",
+      "How do you measure frontend performance?",
+      "Which login and authentication methods have you used?",
+      "Where should a JWT be stored?",
+      "If an authenticated URL is opened in another browser, will the login session persist? Why or why not?",
+      "Why cache data in the frontend?",
+      "Have you built AI agents?",
+      "Compare Docker containers and virtual machines."
+    ],
+    "3555": [
+      "Why have you changed companies frequently?",
+      "What are you looking for in your next company?",
+      "What is the virtual DOM?",
+      "What is a single-page application?",
+      "If you cannot use Redux, how would you implement similar state management in plain JavaScript?",
+      "Which are you most familiar with: Zustand, Redux Thunk, or Redux Saga?",
+      "How do you prevent a search from running on every input change?",
+      "Besides debouncing, what techniques can reduce search requests?",
+      "How do you debug a React component that re-renders too often? Explain step by step.",
+      "What does your typical workday look like?",
+      "How do you optimize a React application?",
+      "Which package do you prefer for fetching backend data?",
+      "How would you rate your frontend and backend skills as percentages?",
+      "Design a reporting platform that lets users schedule reports based on selected database fields."
+    ],
+    "3556": [
+      "Is a React single-page application usually rendered through one HTML page?",
+      "How would you design a frontend that lets users select arbitrary database fields for reports?",
+      "Which controls should a customizable reporting interface provide?",
+      "How would you optimize the interface when a user has many reports?",
+      "What information should each report screen display?",
+      "Design the data model for a customizable reporting platform.",
+      "Why would you choose SQL for a customizable reporting platform?",
+      "How would you optimize database fields and pagination for reports?",
+      "How would you automate backend triggers for report generation?",
+      "How would you generate report PDFs and email them to users automatically?",
+      "How would you scale the platform when it must generate many reports?"
+    ],
+    "3715": [
+      "Describe your most challenging project.",
+      "How do you use Kafka in your project?",
+      "Solve the provided hard coding problem."
+    ],
+    "3716": [
+      "Tell me about yourself.",
+      "Describe your project.",
+      "Solve LeetCode 103: Binary Tree Zigzag Level Order Traversal."
+    ],
+    "3717": [
+      "Draw and explain the architecture of your previous project.",
+      "Which parts of the project were you responsible for?",
+      "How do the microservices communicate?",
+      "Why did you use Kafka?",
+      "How did you use Kafka?",
+      "Give a Kafka use case from your project.",
+      "Compare SOAP and REST APIs.",
+      "Compare integration tests and unit tests.",
+      "Which tools do you use for integration and unit testing?",
+      "Write a unit test for a service."
+    ],
+    "3718": [
+      "Describe your project.",
+      "Design an order system.",
+      "How can Kafka support communication between microservices?",
+      "Compare MongoDB and DynamoDB.",
+      "Solve LeetCode 739: Daily Temperatures."
+    ],
+    "4246": [
+      "How do you implement authentication and authorization in a microservices architecture?",
+      "What is a virtual machine?",
+      "What is a container?",
+      "What is a serverless environment?",
+      "Compare virtual machines, containers, and serverless environments."
+    ],
+    "4373": [
+      "Compare method overriding and method overloading.",
+      "What is an abstract method?",
+      "How do hashCode and equals work in Java?",
+      "Which Spring Boot annotations have you used?",
+      "What does @Qualifier do in Spring?",
+      "Compare @Autowired and @Required in Spring.",
+      "Bean scopes in Spring.",
+      "What is Spring AOP, and how do you use it?",
+      "Explain REST APIs."
+    ],
+    "4885": [
+      "What is Spring AOP, and how do you use it?",
+      "Given strings a and b, return every substring of a that is a permutation of b."
+    ],
+    "4974": [
+      "Design a shopping-cart system.",
+      "What functional requirements would you define for a shopping-cart system?",
+      "What non-functional requirements would you define for a shopping-cart system?"
+    ],
+    "5412": [
+      "Describe a challenging issue you encountered.",
+      "Complete the provided Java functional-programming coding exercise."
+    ],
+    "5651": [
+      "What business does the team support?",
+      "How will the team migrate its older monolith to microservices?"
+    ],
+    "5685": [
+      "What does the team work on?",
+      "When should I expect the interview result?"
+    ],
+    "6878": [
+      "Describe your project.",
+      "Describe your team's development workflow."
+    ]
+  },
+  "remove": {
+    "5479": "Heading for the three specific Spring Boot tasks that already follow it.",
+    "6999": "Vague note saying detailed resume questions were asked but not remembered.",
+    "7843": "Resource-only GraphQLZero URL, not an interview question."
+  },
+  "reuse_existing": {
+    "What does the team work on?": 6002,
+    "What is a single-page application?": 7321
+  }
+}

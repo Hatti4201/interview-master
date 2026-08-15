@@ -1,0 +1,9 @@
+*
+!Dockerfile
+!backend/
+!backend/**
+!database/
+!database/**
+backend/__pycache__/
+backend/smoke_test.py
+*.py[cod]

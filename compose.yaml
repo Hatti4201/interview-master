@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: interview_master
+      POSTGRES_USER: interview_master
+      POSTGRES_PASSWORD: local_interview_only
+    ports:
+      - "127.0.0.1:54329:5432"
+    volumes:
+      - interview_master_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U interview_master -d interview_master"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  interview_master_data:

@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="api-base" content="http://127.0.0.1:8011">
+  <title>Interview Atlas · 本地面试题库</title>
+  <style>
+    :root {
+      --ink: #172523;
+      --muted: #687673;
+      --paper: #f4f0e7;
+      --panel: #fffdf8;
+      --line: #d9d4c8;
+      --deep: #153f3a;
+      --accent: #ef7e4a;
+      --accent-soft: #fff0e7;
+      --shadow: 0 18px 50px rgba(38, 48, 45, .10);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 2%, rgba(239, 126, 74, .13), transparent 24rem),
+        linear-gradient(180deg, #f8f5ee 0, var(--paper) 32rem);
+      font: 15px/1.55 ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { color: inherit; }
+    .shell { width: min(1440px, calc(100% - 40px)); margin: 0 auto; }
+    header { padding: 28px 0 24px; }
+    .nav { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 760; letter-spacing: -.02em; }
+    .mark {
+      width: 38px; height: 38px; display: grid; place-items: center;
+      color: #fff; background: var(--deep); border-radius: 11px;
+      box-shadow: 5px 5px 0 rgba(239, 126, 74, .8);
+    }
+    .local-pill { padding: 7px 11px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: rgba(255,255,255,.55); font-size: 12px; }
+    .account { display: flex; align-items: center; gap: 9px; }
+    .account-name { color: var(--muted); font-size: 13px; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 36px; align-items: end; padding: 52px 0 34px; }
+    .eyebrow { color: var(--accent); font-size: 12px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    h1 { max-width: 780px; margin: 8px 0 14px; font-family: ui-serif, Georgia, serif; font-size: clamp(38px, 5vw, 72px); line-height: .98; letter-spacing: -.055em; font-weight: 600; }
+    .hero p { max-width: 650px; margin: 0; color: var(--muted); font-size: 17px; }
+    .stats { display: grid; grid-template-columns: repeat(2, minmax(130px, 1fr)); border: 1px solid var(--line); background: rgba(255,253,248,.75); box-shadow: var(--shadow); }
+    .stat { padding: 18px 20px; min-width: 145px; }
+    .stat:nth-child(odd) { border-right: 1px solid var(--line); }
+    .stat:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+    .stat strong { display: block; font-family: ui-serif, Georgia, serif; font-size: 27px; font-weight: 600; }
+    .stat span { color: var(--muted); font-size: 12px; }
+    .view-switch { display: inline-flex; gap: 4px; margin-top: 22px; padding: 4px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.62); }
+    .view-button { border: 0; border-radius: 7px; padding: 9px 15px; background: transparent; color: var(--muted); cursor: pointer; font-weight: 700; }
+    .view-button.active { color: #fff; background: var(--deep); }
+    .toolbar { position: sticky; top: 0; z-index: 5; padding: 13px 0; background: rgba(244, 240, 231, .92); backdrop-filter: blur(12px); border-block: 1px solid rgba(217,212,200,.8); }
+    .toolbar-inner { display: grid; grid-template-columns: minmax(0, 1fr) 190px 190px 170px; gap: 12px; }
+    .search-wrap { position: relative; }
+    .search-wrap::before { content: "⌕"; position: absolute; left: 16px; top: 8px; color: var(--deep); font-size: 24px; }
+    input, select { width: 100%; min-height: 46px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 9px; outline: none; }
+    input { padding: 0 16px 0 45px; }
+    select { padding: 0 12px; }
+    input:focus, select:focus, button:focus-visible { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(239,126,74,.18); outline: none; }
+    .workspace { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 34px; padding: 30px 0 70px; }
+    aside h2 { margin: 0 0 12px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+    .categories { display: flex; flex-direction: column; gap: 5px; }
+    .category { width: 100%; display: flex; justify-content: space-between; gap: 10px; border: 0; padding: 9px 10px; border-radius: 8px; background: transparent; cursor: pointer; text-align: left; }
+    .category:hover { background: rgba(255,255,255,.65); }
+    .category.active { color: #fff; background: var(--deep); }
+    .category small { opacity: .68; }
+    .results-head { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; margin-bottom: 14px; }
+    .results-head h2 { margin: 0; font-family: ui-serif, Georgia, serif; font-size: 27px; font-weight: 600; }
+    .results-head span { color: var(--muted); font-size: 13px; }
+    .question-list { display: grid; gap: 9px; }
+    .question-card { width: 100%; display: grid; grid-template-columns: 70px minmax(0,1fr) auto; gap: 18px; align-items: center; border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; background: var(--panel); text-align: left; cursor: pointer; transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease; }
+    .question-card:hover { transform: translateY(-2px); border-color: #b9b0a0; box-shadow: 0 10px 26px rgba(38,48,45,.08); }
+    .frequency { color: var(--deep); text-align: center; border-right: 1px solid var(--line); }
+    .frequency strong { display: block; font: 600 23px/1 ui-serif, Georgia, serif; }
+    .frequency small { color: var(--muted); font-size: 10px; letter-spacing: .08em; }
+    .question-text { font-size: 16px; font-weight: 630; line-height: 1.4; }
+    .question-category { align-self: start; padding: 4px 8px; color: #9d4a25; background: var(--accent-soft); border-radius: 999px; font-size: 11px; white-space: nowrap; }
+    .empty { padding: 70px 20px; border: 1px dashed var(--line); text-align: center; color: var(--muted); background: rgba(255,255,255,.45); }
+    .pagination { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 24px; }
+    .pagination button, .action { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 8px 13px; cursor: pointer; }
+    .pagination button:disabled { opacity: .35; cursor: default; }
+    dialog { width: min(880px, calc(100% - 28px)); max-height: 88vh; padding: 0; border: 0; border-radius: 16px; background: var(--panel); box-shadow: 0 30px 100px rgba(15,30,27,.35); color: var(--ink); }
+    dialog::backdrop { background: rgba(15, 30, 27, .58); backdrop-filter: blur(4px); }
+    .dialog-head { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; gap: 20px; padding: 22px 24px; border-bottom: 1px solid var(--line); background: rgba(255,253,248,.96); }
+    .dialog-head h2 { margin: 4px 0 0; font-family: ui-serif, Georgia, serif; font-size: clamp(23px, 4vw, 34px); line-height: 1.16; }
+    .dialog-kicker { color: var(--accent); font-weight: 750; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+    .close { flex: 0 0 auto; width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 50%; background: transparent; cursor: pointer; font-size: 20px; }
+    .dialog-body { padding: 22px 24px 34px; }
+    .detail-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .tag { padding: 6px 10px; border-radius: 999px; color: var(--muted); background: #f0ede5; font-size: 12px; }
+    .occurrences { display: grid; gap: 10px; }
+    .occurrence { border: 1px solid var(--line); border-radius: 10px; padding: 14px; background: #fff; }
+    .occurrence-top { width: 100%; display: flex; justify-content: space-between; gap: 16px; align-items: center; padding: 0; border: 0; background: transparent; cursor: pointer; text-align: left; }
+    .occurrence-title { font-weight: 700; }
+    .occurrence-sub { color: var(--muted); font-size: 12px; }
+    details { margin-top: 10px; color: var(--muted); }
+    summary { cursor: pointer; color: var(--deep); font-size: 12px; }
+    .raw { white-space: pre-wrap; overflow-wrap: anywhere; color: #40504d; font: 12px/1.65 ui-monospace, SFMono-Regular, Menlo, monospace; background: #f5f2eb; padding: 12px; border-radius: 7px; }
+    .interview-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; margin-bottom: 18px; }
+    .field { padding: 10px 12px; background: #f3f0e9; border-radius: 8px; }
+    .field small { display: block; color: var(--muted); }
+    .back { margin-bottom: 16px; }
+    .loading { opacity: .6; pointer-events: none; }
+    [hidden] { display: none !important; }
+    .record-section { padding: 34px 0 72px; }
+    .record-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; margin-bottom: 20px; }
+    .record-head h2 { margin: 0 0 4px; font: 600 34px/1.1 ui-serif, Georgia, serif; }
+    .record-head p { margin: 0; color: var(--muted); }
+    .mobile-record-filters { display: none; }
+    .table-shell { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); box-shadow: var(--shadow); }
+    .records-table { width: 100%; min-width: 1240px; border-collapse: collapse; table-layout: fixed; }
+    .records-table th { padding: 13px 10px; color: #68756f; background: #edf0eb; font-size: 11px; letter-spacing: .09em; text-align: left; text-transform: uppercase; }
+    .records-table th:first-child, .records-table td:first-child { width: 46px; text-align: center; }
+    .records-table th:nth-child(2) { width: 120px; }
+    .records-table th:nth-child(3), .records-table th:nth-child(4) { width: 175px; }
+    .records-table th:nth-child(5) { width: 130px; }
+    .records-table th:nth-child(6) { width: 100px; }
+    .records-table th:nth-child(7) { width: 130px; }
+    .records-table th:nth-child(8), .records-table th:nth-child(9) { width: 180px; }
+    .record-filters th { padding: 9px 7px; border-bottom: 1px solid var(--line); background: #f4f6f2; }
+    .record-filters input { min-height: 40px; padding: 0 10px; border-radius: 7px; background: #fff; }
+    .record-row td { padding: 14px 10px; border-bottom: 1px solid #e8e5dd; vertical-align: top; background: #fff; }
+    .record-row:hover td { background: #fcfaf4; }
+    .row-toggle { width: 30px; height: 30px; border: 0; background: transparent; color: var(--deep); cursor: pointer; font-size: 20px; transition: transform .15s ease; }
+    .row-toggle[aria-expanded="true"] { transform: rotate(90deg); }
+    .type-pill { display: inline-block; padding: 4px 8px; border: 1px solid #e5c0ad; border-radius: 999px; color: #a34f29; background: var(--accent-soft); font-size: 11px; font-weight: 760; }
+    .question-count { color: var(--muted); font-size: 11px; white-space: nowrap; }
+    .expanded-row td { padding: 0; border-bottom: 1px solid var(--line); background: #f4f1e9; text-align: left !important; }
+    .expanded-content { padding: 18px 24px 24px 56px; text-align: left; }
+    .expanded-title { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 12px; font-weight: 750; }
+    .expanded-questions { display: grid; gap: 7px; }
+    .expanded-question { padding: 11px 13px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+    .expanded-question strong { margin-right: 8px; color: var(--accent); }
+    .expanded-question details { margin-top: 5px; }
+    .login-view { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+    .login-card { width: min(430px, 100%); padding: 34px; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,253,248,.96); box-shadow: var(--shadow); }
+    .login-card .brand { margin-bottom: 30px; }
+    .login-card h1 { margin: 0 0 8px; font-size: 42px; }
+    .login-card p { margin: 0 0 24px; color: var(--muted); }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+    .form-field { display: grid; gap: 6px; color: var(--muted); font-size: 12px; }
+    .form-field.full { grid-column: 1 / -1; }
+    .form-field input, .login-card input { padding: 0 14px; }
+    textarea { width: 100%; min-height: 150px; resize: vertical; padding: 12px 14px; border: 1px solid var(--line); border-radius: 9px; background: var(--panel); color: var(--ink); }
+    .primary { border: 0; border-radius: 9px; padding: 10px 16px; color: #fff; background: var(--deep); cursor: pointer; font-weight: 750; }
+    .login-card .primary { width: 100%; margin-top: 16px; min-height: 48px; }
+    .form-error { min-height: 22px; margin-top: 10px; color: #a23d24; font-size: 13px; }
+    .admin-actions { display: flex; gap: 8px; }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+    .user-list { display: grid; gap: 8px; margin-bottom: 24px; }
+    .user-row { display: grid; grid-template-columns: minmax(0,1fr) 110px 90px auto; gap: 9px; align-items: center; padding: 10px; border: 1px solid var(--line); border-radius: 9px; }
+    .user-email { overflow-wrap: anywhere; }
+    .user-email small { display: block; color: var(--muted); }
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+      .stats { width: 100%; }
+      .workspace { grid-template-columns: 1fr; }
+      .categories { flex-direction: row; overflow-x: auto; padding-bottom: 6px; }
+      .category { width: auto; min-width: max-content; }
+      .toolbar-inner { grid-template-columns: minmax(0, 1fr) 190px; }
+      .toolbar-inner label:last-child { grid-column: 2; grid-row: 1; }
+      .toolbar-inner label:nth-child(2) { grid-column: 1; grid-row: 2; }
+      .toolbar-inner label:nth-child(3) { grid-column: 2; grid-row: 2; }
+    }
+    @media (max-width: 620px) {
+      .shell { width: min(100% - 24px, 1440px); }
+      header { padding-top: 18px; }
+      .nav { align-items: flex-start; gap: 12px; }
+      .account { flex-wrap: wrap; justify-content: flex-end; }
+      .account-name { display: none; }
+      .hero { padding: 34px 0 24px; }
+      .hero h1 { font-size: 40px; }
+      .hero p { font-size: 15px; }
+      .stats, .view-switch { width: 100%; }
+      .stat { min-width: 0; padding: 14px; }
+      .view-button { flex: 1; padding-inline: 8px; }
+      .toolbar-inner { grid-template-columns: 1fr; }
+      .toolbar-inner label, .toolbar-inner label:nth-child(2), .toolbar-inner label:nth-child(3), .toolbar-inner label:last-child { grid-column: 1; grid-row: auto; }
+      .question-card { grid-template-columns: 52px minmax(0,1fr); gap: 12px; padding: 14px 12px; }
+      .question-category { grid-column: 2; justify-self: start; }
+      .interview-grid { grid-template-columns: 1fr; }
+      .record-head { align-items: start; flex-direction: column; }
+      .admin-actions { width: 100%; flex-wrap: wrap; }
+      .admin-actions button { flex: 1; min-height: 44px; white-space: nowrap; }
+      .mobile-record-filters { display: block; margin-bottom: 14px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,253,248,.78); }
+      .mobile-record-filters summary { padding: 12px 14px; font-size: 14px; font-weight: 750; }
+      .mobile-filter-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 9px; padding: 0 12px 12px; }
+      .mobile-filter-grid input { min-height: 44px; padding: 0 11px; background: #fff; }
+      .table-shell { overflow: visible; border: 0; background: transparent; box-shadow: none; }
+      .records-table { display: block; min-width: 0; }
+      .records-table thead { display: none; }
+      .records-table tbody { display: grid; gap: 12px; }
+      .record-row { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: #fff; box-shadow: 0 8px 24px rgba(38,48,45,.06); }
+      .record-row.is-expanded { border-radius: 12px 12px 0 0; }
+      .record-row td, .record-row:hover td { width: auto !important; padding: 9px 12px; border: 0; background: #fff; overflow-wrap: anywhere; }
+      .record-row td::before { content: attr(data-label); display: block; color: var(--muted); font-size: 10px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+      .record-row td:first-child { position: absolute; z-index: 1; top: 7px; right: 7px; padding: 0; }
+      .record-row td:first-child::before { display: none; }
+      .record-row td:nth-child(2) { order: 2; }
+      .record-row td:nth-child(3) { order: 1; grid-column: 1 / -1; padding: 13px 58px 9px 12px; font-size: 18px; font-weight: 750; }
+      .record-row td:nth-child(4) { order: 5; }
+      .record-row td:nth-child(5) { order: 3; }
+      .record-row td:nth-child(6) { order: 6; }
+      .record-row td:nth-child(7) { order: 4; grid-column: 1 / -1; }
+      .record-row td:nth-child(8) { order: 7; }
+      .record-row td:nth-child(9) { order: 8; }
+      .row-toggle { width: 44px; height: 44px; }
+      .expanded-row { display: block; width: 100%; margin-top: -12px; overflow: hidden; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 12px 12px; }
+      .expanded-row td { display: block; width: 100% !important; border: 0; }
+      .expanded-content { padding: 14px; text-align: left; }
+      .expanded-title { align-items: flex-start; flex-direction: column; gap: 3px; }
+      .expanded-question { overflow-wrap: anywhere; text-align: left; }
+      .pagination { gap: 8px; }
+      .pagination button { min-height: 44px; }
+      .pagination span { text-align: center; font-size: 12px; }
+      .dialog-head, .dialog-body { padding-inline: 16px; }
+      .login-card { padding: 26px 20px; }
+      .form-grid, .user-row { grid-template-columns: 1fr; }
+      .form-field.full { grid-column: auto; }
+    }
+  </style>
+</head>
+<body>
+  <section id="loginView" class="login-view">
+    <form id="loginForm" class="login-card">
+      <div class="brand"><span class="mark">IA</span><span>Interview Atlas</span></div>
+      <div class="eyebrow">Private interview library</div>
+      <h1>欢迎回来。</h1>
+      <p>使用管理员为你创建的邮箱和密码登录。</p>
+      <label class="form-field">邮箱<input id="loginEmail" type="email" autocomplete="username" required></label>
+      <label class="form-field">密码<input id="loginPassword" type="password" autocomplete="current-password" required></label>
+      <button class="primary" type="submit">登录</button>
+      <div id="loginError" class="form-error" role="alert"></div>
+    </form>
+  </section>
+
+  <div id="appView" hidden>
+  <header>
+    <div class="shell">
+      <nav class="nav" aria-label="主导航">
+        <div class="brand"><span class="mark">IA</span><span>Interview Atlas</span></div>
+        <div class="account"><span id="accountName" class="account-name"></span><span id="accountRole" class="local-pill"></span><button id="logoutButton" class="action" type="button">退出</button></div>
+      </nav>
+      <section class="hero">
+        <div>
+          <div class="eyebrow">Your interview intelligence library</div>
+          <h1>把每一次面试，变成下一次的优势。</h1>
+          <p>按核心问题去重，按真实面试场次计算频次。搜索英文或原始中文，查看这道题在哪些面试出现，以及当时完整的上下文。</p>
+          <div class="view-switch" aria-label="查看方式">
+            <button id="questionViewButton" class="view-button" type="button">按问题查看</button>
+            <button id="recordViewButton" class="view-button active" type="button">按面试记录查看</button>
+          </div>
+        </div>
+        <div class="stats" aria-label="题库统计">
+          <div class="stat"><strong id="statQuestions">—</strong><span>唯一问题</span></div>
+          <div class="stat"><strong id="statInterviews">—</strong><span>面试记录</span></div>
+          <div class="stat"><strong id="statOccurrences">—</strong><span>问题关联</span></div>
+          <div class="stat"><strong id="statCategories">—</strong><span>主题分类</span></div>
+        </div>
+      </section>
+    </div>
+  </header>
+
+  <section id="questionToolbar" class="toolbar" hidden>
+    <div class="shell toolbar-inner">
+      <label class="search-wrap">
+        <span hidden>搜索题目</span>
+        <input id="search" type="search" autocomplete="off" placeholder="搜索英文问题或中文原文…">
+      </label>
+      <label>
+        <span hidden>按公司筛选</span>
+        <select id="company"><option value="">全部公司</option></select>
+      </label>
+      <label>
+        <span hidden>按 Vendor 筛选</span>
+        <select id="vendor"><option value="">全部 Vendor</option></select>
+      </label>
+      <label>
+        <span hidden>排序方式</span>
+        <select id="sort">
+          <option value="frequency">按频次排序</option>
+          <option value="az">按字母排序</option>
+          <option value="newest">最新收录</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <main id="questionWorkspace" class="shell workspace" hidden>
+    <aside>
+      <h2>主题分类</h2>
+      <div id="categories" class="categories"></div>
+    </aside>
+    <section aria-labelledby="resultsTitle">
+      <div class="results-head">
+        <h2 id="resultsTitle">高频问题</h2>
+        <span id="resultCount">正在读取…</span>
+      </div>
+      <div id="questionList" class="question-list" aria-live="polite"></div>
+      <nav class="pagination" aria-label="分页">
+        <button id="prevPage" type="button">上一页</button>
+        <span id="pageLabel">第 1 页</span>
+        <button id="nextPage" type="button">下一页</button>
+      </nav>
+    </section>
+  </main>
+
+  <section id="recordView" class="record-section">
+    <div class="shell">
+      <div class="record-head">
+        <div><h2>面试记录</h2><p>每一列都能筛选，展开一行查看该场全部问题。</p></div>
+        <div class="admin-actions"><button id="addInterviewButton" class="primary" type="button" hidden>＋ 添加面试</button><button id="manageUsersButton" class="action" type="button" hidden>用户管理</button><button id="resetRecordFilters" class="action" type="button">清空筛选</button></div>
+      </div>
+      <details class="mobile-record-filters">
+        <summary>筛选面试记录</summary>
+        <div class="mobile-filter-grid">
+          <input data-record-filter="date" type="search" placeholder="日期" aria-label="手机端筛选日期">
+          <input data-record-filter="company" type="search" placeholder="公司" aria-label="手机端筛选公司">
+          <input data-record-filter="vendor" type="search" placeholder="Vendor" aria-label="手机端筛选 Vendor">
+          <input data-record-filter="round" type="search" placeholder="轮次" aria-label="手机端筛选轮次">
+          <input data-record-filter="type" type="search" placeholder="类型" aria-label="手机端筛选类型">
+          <input data-record-filter="position" type="search" placeholder="岗位" aria-label="手机端筛选岗位">
+          <input data-record-filter="interviewer" type="search" placeholder="面试官" aria-label="手机端筛选面试官">
+          <input data-record-filter="candidate" type="search" placeholder="候选人" aria-label="手机端筛选候选人">
+        </div>
+      </details>
+      <div class="table-shell">
+        <table class="records-table">
+          <thead>
+            <tr><th></th><th>日期</th><th>公司</th><th>Vendor</th><th>轮次</th><th>类型</th><th>岗位</th><th>面试官</th><th>候选人</th></tr>
+            <tr class="record-filters">
+              <th></th>
+              <th><input data-record-filter="date" type="search" placeholder="YYYY-MM-DD" aria-label="筛选日期"></th>
+              <th><input data-record-filter="company" type="search" placeholder="公司" aria-label="筛选公司"></th>
+              <th><input data-record-filter="vendor" type="search" placeholder="Vendor" aria-label="筛选 Vendor"></th>
+              <th><input data-record-filter="round" type="search" placeholder="轮次" aria-label="筛选轮次"></th>
+              <th><input data-record-filter="type" type="search" placeholder="类型" aria-label="筛选类型"></th>
+              <th><input data-record-filter="position" type="search" placeholder="岗位" aria-label="筛选岗位"></th>
+              <th><input data-record-filter="interviewer" type="search" placeholder="面试官" aria-label="筛选面试官"></th>
+              <th><input data-record-filter="candidate" type="search" placeholder="候选人" aria-label="筛选候选人"></th>
+            </tr>
+          </thead>
+          <tbody id="recordTableBody"></tbody>
+        </table>
+      </div>
+      <nav class="pagination" aria-label="面试记录分页">
+        <button id="prevRecordPage" type="button">上一页</button>
+        <span id="recordPageLabel">第 1 页</span>
+        <button id="nextRecordPage" type="button">下一页</button>
+      </nav>
+    </div>
+  </section>
+
+  <dialog id="detailDialog" aria-labelledby="detailTitle">
+    <div class="dialog-head">
+      <div><div id="detailKicker" class="dialog-kicker">问题详情</div><h2 id="detailTitle">正在读取…</h2></div>
+      <button id="closeDialog" class="close" type="button" aria-label="关闭">×</button>
+    </div>
+    <div class="dialog-body">
+      <div id="detailMeta" class="detail-meta"></div>
+      <div id="detailBody"></div>
+    </div>
+  </dialog>
+  </div>
+
+  <dialog id="interviewDialog" aria-labelledby="interviewFormTitle">
+    <div class="dialog-head"><div><div class="dialog-kicker">Admin</div><h2 id="interviewFormTitle">添加面试记录</h2></div><button class="close" data-close="interviewDialog" type="button" aria-label="关闭">×</button></div>
+    <form id="interviewForm" class="dialog-body">
+      <div class="form-grid">
+        <label class="form-field">日期<input name="date" type="date"></label>
+        <label class="form-field">公司 *<input name="client" required maxlength="200"></label>
+        <label class="form-field">Vendor<input name="vendor" maxlength="200"></label>
+        <label class="form-field">岗位 *<input name="position" required maxlength="200"></label>
+        <label class="form-field">轮次<input name="round" maxlength="100"></label>
+        <label class="form-field">类型<input name="type" maxlength="100"></label>
+        <label class="form-field">面试官<input name="interviewer" maxlength="200"></label>
+        <label class="form-field">候选人<input name="candidate" maxlength="200"></label>
+        <label class="form-field full">问题（每行一道）*<textarea name="questions" required placeholder="Tell me about yourself.&#10;Explain Spring dependency injection."></textarea></label>
+        <label class="form-field full">备注<textarea name="notes"></textarea></label>
+      </div>
+      <div id="interviewFormError" class="form-error" role="alert"></div>
+      <div class="dialog-actions"><button class="action" data-close="interviewDialog" type="button">取消</button><button class="primary" type="submit">保存面试</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="usersDialog" aria-labelledby="usersTitle">
+    <div class="dialog-head"><div><div class="dialog-kicker">Admin</div><h2 id="usersTitle">用户管理</h2></div><button class="close" data-close="usersDialog" type="button" aria-label="关闭">×</button></div>
+    <div class="dialog-body">
+      <div id="userList" class="user-list"></div>
+      <form id="userForm">
+        <h3>添加用户</h3>
+        <div class="form-grid">
+          <label class="form-field">邮箱 *<input name="email" type="email" required></label>
+          <label class="form-field">显示名称<input name="display_name" maxlength="120"></label>
+          <label class="form-field">初始密码 *<input name="password" type="password" minlength="10" required autocomplete="new-password"></label>
+          <label class="form-field">角色<select name="role"><option value="user">User · 只读</option><option value="admin">Admin · 可管理</option></select></label>
+        </div>
+        <div id="userFormError" class="form-error" role="alert"></div>
+        <div class="dialog-actions"><button class="primary" type="submit">创建用户</button></div>
+      </form>
+    </div>
+  </dialog>
+
+  <script>
+    const configuredApiBase = document.querySelector('meta[name="api-base"]').content.replace(/\/$/, "");
+    const API_BASE = location.protocol === "file:" || ["127.0.0.1", "localhost"].includes(location.hostname) ? configuredApiBase : "";
+    const state = { page: 1, pageSize: 24, query: "", category: "", company: "", companyName: "", vendor: "", vendorName: "", sort: "frequency", total: 0, questionId: null };
+    const recordState = { page: 1, pageSize: 40, total: 0, filters: {} };
+    let currentUser = null;
+    let csrfToken = "";
+    const byId = id => document.getElementById(id);
+    const list = byId("questionList");
+    const recordBody = byId("recordTableBody");
+    const dialog = byId("detailDialog");
+    const formatNumber = value => new Intl.NumberFormat("zh-CN").format(value ?? 0);
+    const text = (tag, className, value) => {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      element.textContent = value ?? "—";
+      return element;
+    };
+    const api = async (path, options = {}) => {
+      const headers = new Headers(options.headers || {});
+      let body = options.body;
+      if (body && typeof body !== "string") {
+        headers.set("Content-Type", "application/json");
+        body = JSON.stringify(body);
+      }
+      if (csrfToken && !["GET", "HEAD"].includes(options.method || "GET")) headers.set("X-CSRF-Token", csrfToken);
+      const response = await fetch(`${API_BASE}${path}`, { ...options, body, headers, credentials: "include" });
+      const payload = await response.json().catch(() => ({}));
+      if (response.status === 401 && path !== "/api/auth/login") showLogin();
+      if (!response.ok) throw new Error(payload.error || "读取失败");
+      return payload;
+    };
+    const label = (...parts) => parts.filter(Boolean).join(" · ") || "信息未填写";
+    const scopeName = () => [state.company ? state.companyName : "", state.vendor ? `${state.vendorName} Vendor` : ""].filter(Boolean).join(" + ");
+
+    function switchView(view) {
+      const questions = view === "questions";
+      byId("questionToolbar").hidden = !questions;
+      byId("questionWorkspace").hidden = !questions;
+      byId("recordView").hidden = questions;
+      byId("questionViewButton").classList.toggle("active", questions);
+      byId("recordViewButton").classList.toggle("active", !questions);
+    }
+
+    async function loadStats() {
+      const stats = await api("/api/stats");
+      byId("statQuestions").textContent = formatNumber(stats.questions);
+      byId("statInterviews").textContent = formatNumber(stats.interviews);
+      byId("statOccurrences").textContent = formatNumber(stats.occurrences);
+      byId("statCategories").textContent = formatNumber(stats.categories);
+    }
+
+    async function loadCompanies() {
+      const companies = await api("/api/companies");
+      const select = byId("company");
+      select.replaceChildren();
+      const all = document.createElement("option");
+      all.value = "";
+      all.textContent = "全部公司";
+      select.append(all);
+      companies.forEach(company => {
+        const option = document.createElement("option");
+        option.value = company.company_key;
+        option.textContent = `${company.company_name} · ${company.interviews} 场`;
+        select.append(option);
+      });
+    }
+
+    async function loadVendors() {
+      const vendors = await api("/api/vendors");
+      const select = byId("vendor");
+      select.replaceChildren();
+      const all = document.createElement("option");
+      all.value = "";
+      all.textContent = "全部 Vendor";
+      select.append(all);
+      vendors.forEach(vendor => {
+        const option = document.createElement("option");
+        option.value = vendor.vendor_key;
+        option.textContent = `${vendor.vendor_name} · ${vendor.interviews} 场`;
+        select.append(option);
+      });
+    }
+
+    function categoryButton(slug, name, count) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `category${state.category === slug ? " active" : ""}`;
+      button.append(text("span", "", name), text("small", "", formatNumber(count)));
+      button.addEventListener("click", () => {
+        state.category = slug;
+        state.page = 1;
+        loadCategories();
+        loadQuestions();
+      });
+      return button;
+    }
+
+    async function loadCategories() {
+      const params = new URLSearchParams();
+      if (state.company) params.set("company", state.company);
+      if (state.vendor) params.set("vendor", state.vendor);
+      const categories = await api(`/api/categories?${params}`);
+      const holder = byId("categories");
+      holder.replaceChildren(categoryButton("", "全部问题", categories.reduce((sum, item) => sum + item.question_count, 0)));
+      categories.filter(item => item.question_count > 0).forEach(item => {
+        holder.append(categoryButton(item.slug, item.name_zh, item.question_count));
+      });
+    }
+
+    function renderQuestions(payload) {
+      state.total = payload.total;
+      list.replaceChildren();
+      byId("resultCount").textContent = `共 ${formatNumber(payload.total)} 道`;
+      byId("resultsTitle").textContent = scopeName() ? `${scopeName()} 面试题` : "高频问题";
+      if (!payload.items.length) {
+        list.append(text("div", "empty", "没有找到匹配的问题。换一个关键词试试。"));
+      }
+      payload.items.forEach(item => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "question-card";
+        const frequency = text("div", "frequency", "");
+        frequency.replaceChildren(text("strong", "", item.frequency), text("small", "", "频次"));
+        card.append(frequency, text("span", "question-text", item.question), text("span", "question-category", item.category_zh));
+        card.addEventListener("click", () => showQuestion(item.id));
+        list.append(card);
+      });
+      const pages = Math.max(1, Math.ceil(payload.total / state.pageSize));
+      byId("pageLabel").textContent = `第 ${state.page} / ${pages} 页`;
+      byId("prevPage").disabled = state.page <= 1;
+      byId("nextPage").disabled = state.page >= pages;
+    }
+
+    let activeRequest;
+    async function loadQuestions() {
+      if (activeRequest) activeRequest.abort();
+      activeRequest = new AbortController();
+      list.classList.add("loading");
+      const params = new URLSearchParams({ page: state.page, page_size: state.pageSize, sort: state.sort });
+      if (state.query) params.set("q", state.query);
+      if (state.category) params.set("category", state.category);
+      if (state.company) params.set("company", state.company);
+      if (state.vendor) params.set("vendor", state.vendor);
+      try {
+        const payload = await api(`/api/questions?${params}`, { signal: activeRequest.signal });
+        renderQuestions(payload);
+      } catch (error) {
+        if (error.name !== "AbortError") list.replaceChildren(text("div", "empty", "题库暂时无法读取。请确认本地数据库已启动。"));
+      } finally {
+        list.classList.remove("loading");
+      }
+    }
+
+    function recordCell(value, labelText, className = "") {
+      const cell = document.createElement("td");
+      if (className) cell.className = className;
+      cell.dataset.label = labelText;
+      cell.textContent = value || "—";
+      return cell;
+    }
+
+    async function expandRecord(item, row, toggle) {
+      const existing = row.nextElementSibling;
+      if (existing?.classList.contains("expanded-row")) {
+        existing.remove();
+        row.classList.remove("is-expanded");
+        toggle.setAttribute("aria-expanded", "false");
+        return;
+      }
+      document.querySelectorAll(".expanded-row").forEach(element => element.remove());
+      document.querySelectorAll(".record-row.is-expanded").forEach(element => element.classList.remove("is-expanded"));
+      document.querySelectorAll(".row-toggle").forEach(button => button.setAttribute("aria-expanded", "false"));
+      row.classList.add("is-expanded");
+      toggle.setAttribute("aria-expanded", "true");
+      const expanded = document.createElement("tr");
+      expanded.className = "expanded-row";
+      const cell = document.createElement("td");
+      cell.colSpan = 9;
+      cell.append(text("div", "expanded-content", "正在读取问题…"));
+      expanded.append(cell);
+      row.after(expanded);
+      try {
+        const interview = await api(`/api/interviews/${item.id}`);
+        const content = text("div", "expanded-content", "");
+        const title = text("div", "expanded-title", "");
+        title.append(text("span", "", label(interview.company || interview.client, interview.position, interview.round)), text("span", "question-count", `${interview.questions.length} 道题`));
+        const questions = text("div", "expanded-questions", "");
+        if (!interview.questions.length) questions.append(text("div", "empty", "这场面试没有解析出问题。"));
+        interview.questions.forEach(question => {
+          const card = text("div", "expanded-question", "");
+          const heading = text("div", "", "");
+          heading.append(text("strong", "", question.sequence), document.createTextNode(question.question));
+          const details = document.createElement("details");
+          details.append(text("summary", "", `查看原文 · ${question.language}`), text("div", "raw", question.original_text));
+          card.append(heading, details);
+          questions.append(card);
+        });
+        content.append(title, questions);
+        cell.replaceChildren(content);
+      } catch (error) {
+        cell.replaceChildren(text("div", "expanded-content", error.message));
+      }
+    }
+
+    function renderInterviews(payload) {
+      recordState.total = payload.total;
+      recordBody.replaceChildren();
+      if (!payload.items.length) {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.colSpan = 9;
+        cell.append(text("div", "empty", "没有找到匹配的面试记录。"));
+        row.append(cell);
+        recordBody.append(row);
+      }
+      payload.items.forEach(item => {
+        const row = document.createElement("tr");
+        row.className = "record-row";
+        const toggleCell = document.createElement("td");
+        const toggle = text("button", "row-toggle", "›");
+        toggle.type = "button";
+        toggle.setAttribute("aria-expanded", "false");
+        toggle.setAttribute("aria-label", `展开面试 ${item.id} 的 ${item.question_count} 道题`);
+        toggle.addEventListener("click", () => expandRecord(item, row, toggle));
+        toggleCell.append(toggle);
+        const typeCell = document.createElement("td");
+        typeCell.dataset.label = "类型";
+        typeCell.append(text("span", "type-pill", item.type || "—"));
+        row.append(toggleCell, recordCell(item.date, "日期"), recordCell(item.company, "公司"), recordCell(item.vendor, "Vendor"), recordCell(item.round, "轮次"), typeCell, recordCell(item.position, "岗位"), recordCell(item.interviewer, "面试官"), recordCell(item.candidate, "候选人"));
+        row.addEventListener("dblclick", () => expandRecord(item, row, toggle));
+        recordBody.append(row);
+      });
+      const pages = Math.max(1, Math.ceil(payload.total / recordState.pageSize));
+      byId("recordPageLabel").textContent = `共 ${formatNumber(payload.total)} 场 · 第 ${recordState.page} / ${pages} 页`;
+      byId("prevRecordPage").disabled = recordState.page <= 1;
+      byId("nextRecordPage").disabled = recordState.page >= pages;
+    }
+
+    let recordRequest;
+    async function loadInterviews() {
+      if (recordRequest) recordRequest.abort();
+      recordRequest = new AbortController();
+      recordBody.classList.add("loading");
+      const params = new URLSearchParams({ page: recordState.page, page_size: recordState.pageSize });
+      Object.entries(recordState.filters).forEach(([name, value]) => { if (value) params.set(name, value); });
+      try {
+        const payload = await api(`/api/interviews?${params}`, { signal: recordRequest.signal });
+        renderInterviews(payload);
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          const row = document.createElement("tr");
+          const cell = document.createElement("td");
+          cell.colSpan = 9;
+          cell.append(text("div", "empty", "面试记录暂时无法读取。"));
+          row.append(cell);
+          recordBody.replaceChildren(row);
+        }
+      } finally {
+        recordBody.classList.remove("loading");
+      }
+    }
+
+    function addMeta(...values) {
+      const holder = byId("detailMeta");
+      holder.replaceChildren(...values.filter(Boolean).map(value => text("span", "tag", value)));
+    }
+
+    async function showQuestion(id) {
+      state.questionId = id;
+      byId("detailKicker").textContent = "问题详情";
+      byId("detailTitle").textContent = "正在读取…";
+      byId("detailBody").replaceChildren();
+      addMeta();
+      if (!dialog.open) dialog.showModal();
+      try {
+        const params = new URLSearchParams();
+        if (state.company) params.set("company", state.company);
+        if (state.vendor) params.set("vendor", state.vendor);
+        const item = await api(`/api/questions/${id}?${params}`);
+        byId("detailTitle").textContent = item.question;
+        addMeta(`${scopeName() ? scopeName() + " 内" : "全库"}频次 ${item.frequency}`, item.category_zh, `Q${item.id}`);
+        const holder = text("div", "occurrences", "");
+        item.occurrences.forEach(occurrence => {
+          const card = text("article", "occurrence", "");
+          const openInterview = document.createElement("button");
+          openInterview.type = "button";
+          openInterview.className = "occurrence-top";
+          const info = text("span", "", "");
+          info.append(text("span", "occurrence-title", label(occurrence.client, occurrence.position)), text("span", "occurrence-sub", label(occurrence.date, occurrence.round, `面试 #${occurrence.interview_id}`)));
+          openInterview.append(info, text("span", "", "查看面试 →"));
+          openInterview.addEventListener("click", () => showInterview(occurrence.interview_id));
+          const details = document.createElement("details");
+          details.append(text("summary", "", `查看原文 · ${occurrence.language}`), text("div", "raw", occurrence.original_text));
+          card.append(openInterview, details);
+          holder.append(card);
+        });
+        byId("detailBody").replaceChildren(holder);
+      } catch (error) {
+        byId("detailTitle").textContent = "无法读取问题";
+        byId("detailBody").replaceChildren(text("div", "empty", error.message));
+      }
+    }
+
+    async function showInterview(id) {
+      byId("detailKicker").textContent = "面试记录";
+      byId("detailTitle").textContent = "正在读取…";
+      byId("detailBody").replaceChildren();
+      addMeta();
+      try {
+        const item = await api(`/api/interviews/${id}`);
+        byId("detailTitle").textContent = label(item.client, item.position, `面试 #${item.id}`);
+        addMeta(item.date, item.round, item.employment_type, item.source_filename);
+        const back = text("button", "action back", "← 返回问题");
+        back.type = "button";
+        back.addEventListener("click", () => showQuestion(state.questionId));
+        const fields = text("div", "interview-grid", "");
+        [["客户", item.client], ["岗位", item.position], ["Vendor", item.vendor], ["轮次", item.round], ["面试官", item.interviewer], ["候选人", item.candidate]].forEach(([name, value]) => {
+          const field = text("div", "field", value || "—");
+          field.prepend(text("small", "", name));
+          fields.append(field);
+        });
+        const questions = text("div", "occurrences", "");
+        item.questions.forEach(question => {
+          const card = text("article", "occurrence", "");
+          card.append(text("div", "occurrence-title", `${question.sequence}. ${question.question}`), text("div", "occurrence-sub", `频次 ${question.frequency}`));
+          const details = document.createElement("details");
+          details.append(text("summary", "", `查看原文 · ${question.language}`), text("div", "raw", question.original_text));
+          card.append(details);
+          questions.append(card);
+        });
+        const raw = document.createElement("details");
+        raw.append(text("summary", "", "查看完整原始面试记录"), text("div", "raw", item.raw_content || "暂无原始内容"));
+        byId("detailBody").replaceChildren(back, fields, questions, raw);
+      } catch (error) {
+        byId("detailTitle").textContent = "无法读取面试";
+        byId("detailBody").replaceChildren(text("div", "empty", error.message));
+      }
+    }
+
+    let searchTimer;
+    byId("search").addEventListener("input", event => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => { state.query = event.target.value.trim(); state.page = 1; loadQuestions(); }, 250);
+    });
+    byId("sort").addEventListener("change", event => { state.sort = event.target.value; state.page = 1; loadQuestions(); });
+    byId("questionViewButton").addEventListener("click", () => switchView("questions"));
+    byId("recordViewButton").addEventListener("click", () => switchView("records"));
+    byId("company").addEventListener("change", event => {
+      state.company = event.target.value;
+      state.companyName = event.target.selectedOptions[0].textContent.split(" · ")[0];
+      state.category = "";
+      state.page = 1;
+      loadCategories();
+      loadQuestions();
+    });
+    byId("vendor").addEventListener("change", event => {
+      state.vendor = event.target.value;
+      state.vendorName = event.target.selectedOptions[0].textContent.split(" · ")[0];
+      state.category = "";
+      state.page = 1;
+      loadCategories();
+      loadQuestions();
+    });
+    byId("prevPage").addEventListener("click", () => { state.page--; loadQuestions(); window.scrollTo({ top: 430, behavior: "smooth" }); });
+    byId("nextPage").addEventListener("click", () => { state.page++; loadQuestions(); window.scrollTo({ top: 430, behavior: "smooth" }); });
+    byId("prevRecordPage").addEventListener("click", () => { recordState.page--; loadInterviews(); });
+    byId("nextRecordPage").addEventListener("click", () => { recordState.page++; loadInterviews(); });
+    let recordFilterTimer;
+    document.querySelectorAll("[data-record-filter]").forEach(input => {
+      input.addEventListener("input", event => {
+        clearTimeout(recordFilterTimer);
+        recordFilterTimer = setTimeout(() => {
+          recordState.filters[event.target.dataset.recordFilter] = event.target.value.trim();
+          recordState.page = 1;
+          loadInterviews();
+        }, 280);
+      });
+    });
+    byId("resetRecordFilters").addEventListener("click", () => {
+      document.querySelectorAll("[data-record-filter]").forEach(input => { input.value = ""; });
+      recordState.filters = {};
+      recordState.page = 1;
+      loadInterviews();
+    });
+    byId("closeDialog").addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", event => { if (event.target === dialog) dialog.close(); });
+
+    function showLogin() {
+      currentUser = null;
+      csrfToken = "";
+      byId("appView").hidden = true;
+      byId("loginView").hidden = false;
+      byId("loginPassword").value = "";
+    }
+
+    function showApp(user) {
+      currentUser = user;
+      csrfToken = user.csrf_token;
+      byId("accountName").textContent = user.display_name || user.email;
+      byId("accountRole").textContent = user.role === "admin" ? "Admin" : "User · 只读";
+      byId("addInterviewButton").hidden = user.role !== "admin";
+      byId("manageUsersButton").hidden = user.role !== "admin";
+      byId("loginView").hidden = true;
+      byId("appView").hidden = false;
+    }
+
+    async function loadEverything() {
+      await Promise.all([loadStats(), loadCompanies(), loadVendors(), loadCategories(), loadQuestions(), loadInterviews()]);
+    }
+
+    byId("loginForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const error = byId("loginError");
+      error.textContent = "";
+      try {
+        const result = await api("/api/auth/login", { method: "POST", body: { email: byId("loginEmail").value, password: byId("loginPassword").value } });
+        showApp(result.user);
+        await loadEverything();
+      } catch (failure) {
+        error.textContent = failure.message;
+      }
+    });
+
+    byId("logoutButton").addEventListener("click", async () => {
+      try { await api("/api/auth/logout", { method: "POST" }); } finally { showLogin(); }
+    });
+
+    byId("addInterviewButton").addEventListener("click", () => byId("interviewDialog").showModal());
+    byId("interviewForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const values = Object.fromEntries(new FormData(form));
+      const error = byId("interviewFormError");
+      error.textContent = "";
+      try {
+        await api("/api/interviews", { method: "POST", body: values });
+        form.reset();
+        byId("interviewDialog").close();
+        recordState.page = 1;
+        await loadEverything();
+      } catch (failure) {
+        error.textContent = failure.message;
+      }
+    });
+
+    function option(value, labelText, selected) {
+      const item = document.createElement("option");
+      item.value = value;
+      item.textContent = labelText;
+      item.selected = selected;
+      return item;
+    }
+
+    async function loadUsers() {
+      const users = await api("/api/admin/users");
+      const holder = byId("userList");
+      holder.replaceChildren();
+      users.forEach(user => {
+        const row = text("div", "user-row", "");
+        const identity = text("div", "user-email", user.email);
+        identity.append(text("small", "", user.display_name || `用户 #${user.id}`));
+        const role = document.createElement("select");
+        role.setAttribute("aria-label", `${user.email} 的角色`);
+        role.append(option("user", "User", user.role === "user"), option("admin", "Admin", user.role === "admin"));
+        const active = document.createElement("select");
+        active.setAttribute("aria-label", `${user.email} 的状态`);
+        active.append(option("true", "启用", user.is_active), option("false", "停用", !user.is_active));
+        const save = text("button", "action", "保存");
+        save.type = "button";
+        save.addEventListener("click", async () => {
+          try {
+            await api(`/api/admin/users/${user.id}`, { method: "PATCH", body: { role: role.value, is_active: active.value === "true" } });
+            await loadUsers();
+          } catch (failure) {
+            byId("userFormError").textContent = failure.message;
+          }
+        });
+        row.append(identity, role, active, save);
+        holder.append(row);
+      });
+    }
+
+    byId("manageUsersButton").addEventListener("click", async () => {
+      byId("usersDialog").showModal();
+      try { await loadUsers(); } catch (failure) { byId("userFormError").textContent = failure.message; }
+    });
+    byId("userForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const error = byId("userFormError");
+      error.textContent = "";
+      try {
+        await api("/api/admin/users", { method: "POST", body: Object.fromEntries(new FormData(form)) });
+        form.reset();
+        await loadUsers();
+      } catch (failure) {
+        error.textContent = failure.message;
+      }
+    });
+
+    document.querySelectorAll("[data-close]").forEach(button => button.addEventListener("click", () => byId(button.dataset.close).close()));
+
+    (async function bootstrap() {
+      try {
+        const result = await api("/api/auth/me");
+        showApp(result.user);
+        await loadEverything();
+      } catch (failure) {
+        showLogin();
+      }
+    })();
+  </script>
+</body>
+</html>

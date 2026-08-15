@@ -1,0 +1,53 @@
+{
+  "dataset": "interview-master",
+  "version": "2026-08-01",
+  "database": {
+    "engine": "PostgreSQL",
+    "version": "17",
+    "backup": "backups/interview-master-2026-08-01-auth.dump",
+    "backup_sha256": "10f075c3dc63067ef631cd7eba7cbc463b158e321b346692d803c7f72410ad16"
+  },
+  "counts": {
+    "sources": 3,
+    "raw_records": 1155,
+    "pending_raw_records": 0,
+    "needs_review_raw_records": 30,
+    "interviews": 1153,
+    "questions": 7841,
+    "variants": 8136,
+    "occurrences": 8444,
+    "tags": 16,
+    "questions_needing_review": 0
+  },
+  "translation_review": {
+    "approved": 566,
+    "translated_but_needs_split": 0,
+    "composite_questions_split": 20,
+    "atomic_question_entries_created": 125,
+    "existing_questions_reused": 10,
+    "new_unique_questions_created": 111,
+    "removed_derived_questions": 86,
+    "non_question_records_removed_during_split": 3,
+    "merged_into_existing_questions": 11,
+    "translation_placeholders_remaining": 0
+  },
+  "raw_sources": [
+    {
+      "file": "raw/pilot_interviews.json",
+      "sha256": "76279560281d5592c5a9065d3243eea648e2cb577996fe7bf861c6e75fbf618f",
+      "status": "parsed"
+    },
+    {
+      "file": "raw/Java Backend Interview Questions.txt",
+      "sha256": "6298a142702dacccb386dd71683dc92f6bbf56e1c6dc47b866de4db9277b27d1",
+      "status": "parsed_with_review_queue",
+      "detail_records": 349
+    },
+    {
+      "file": "raw/第十三期offer收割机- Interview Questions Notes No.13.txt",
+      "sha256": "cda81c5096e9dfd0e4ccfcb5d2ab0924d517f0416f8f528017c4239417908488",
+      "status": "parsed_with_review_queue",
+      "detail_records": 484
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+backups/*
+exports/*
+raw/*
+!raw/.gitkeep
+
+# Private data and database backups
+*_interviews.json
+*candidate*.json
+*.dump
+*.sql.gz
+
+# Local secrets and credentials
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Local build/runtime files
+__pycache__/
+*.py[cod]
+.DS_Store
