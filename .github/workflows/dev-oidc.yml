@@ -1,0 +1,30 @@
+name: Dev OIDC
+
+on:
+  push:
+    branches: [develop]
+    paths: [.github/workflows/dev-oidc.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-dev-oidc:
+    environment: development
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-session-name: interview-master-dev
+      - name: Verify AWS identity
+        run: |
+          test "$(aws sts get-caller-identity --query Account --output text)" = "412541033681"
+          aws sts get-caller-identity --query Arn --output text
