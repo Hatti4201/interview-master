@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+permissions:
+  contents: read
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Python
+        run: |
+          python3 -m compileall -q backend scripts
+          python3 backend/runtime_support.py
+      - name: Build API image
+        run: docker build --tag interview-master-api:ci .
