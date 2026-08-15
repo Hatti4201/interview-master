@@ -1,4 +1,4 @@
-FROM python:3.13-slim-bookworm
+FROM python:3.13-alpine3.24
 
 COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:1.0.1 /lambda-adapter /opt/extensions/lambda-adapter
 
@@ -7,10 +7,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PORT=8080 \
     AWS_LWA_READINESS_CHECK_PATH=/api/health
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends postgresql-client \
-    && rm -rf /var/lib/apt/lists/* \
-    && useradd --create-home --uid 10001 interview
+RUN apk add --no-cache postgresql-client \
+    && adduser -D -u 10001 interview
 
 WORKDIR /app
 COPY --chown=interview:interview backend/ backend/
