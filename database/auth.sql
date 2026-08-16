@@ -1,3 +1,9 @@
+SELECT pg_advisory_lock(hashtext('interview-master-schema'));
+SELECT to_regclass('public.sources') IS NULL AS initialize \gset
+\if :initialize
+\ir schema.sql
+\endif
+
 BEGIN;
 
 CREATE TABLE IF NOT EXISTS app_users (
@@ -30,3 +36,5 @@ ALTER TABLE interviews
     ADD COLUMN IF NOT EXISTS created_by_user_id BIGINT REFERENCES app_users(id);
 
 COMMIT;
+
+SELECT pg_advisory_unlock(hashtext('interview-master-schema'));
