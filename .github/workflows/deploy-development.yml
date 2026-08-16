@@ -75,5 +75,9 @@ jobs:
         run: |
           STATE="$(aws lambda get-function-configuration --function-name "$LAMBDA_FUNCTION" --query State --output text)"
           test "$STATE" = "Active"
+          RESPONSE_FILE="$(mktemp)"
+          trap 'rm -f "$RESPONSE_FILE"' EXIT
+          aws lambda invoke --function-name "$LAMBDA_FUNCTION" --cli-binary-format raw-in-base64-out --payload '{"version":"2.0","routeKey":"GET /api/health","rawPath":"/api/health","rawQueryString":"","headers":{"host":"dev.local","x-forwarded-proto":"https"},"requestContext":{"http":{"method":"GET","path":"/api/health","protocol":"HTTP/1.1","sourceIp":"127.0.0.1","userAgent":"github-actions"}}}' "$RESPONSE_FILE" >/dev/null
+          jq -e '.statusCode == 200 and (.body | fromjson | .status == "ok")' "$RESPONSE_FILE" >/dev/null
           aws s3api head-bucket --bucket "$FRONTEND_BUCKET"
           aws sts get-caller-identity --query Arn --output text
