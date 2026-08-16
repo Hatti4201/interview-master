@@ -63,7 +63,12 @@ def execute_sql(sql: str) -> str:
 
 
 def apply_auth_schema() -> None:
-    execute_sql((MASTER_ROOT / "database" / "auth.sql").read_text(encoding="utf-8"))
+    run_psql(
+        DATABASE_URL,
+        "-qAt",
+        "-f",
+        str(MASTER_ROOT / "database" / "auth.sql"),
+    )
 
 
 def normalize_email(email: str) -> str:
