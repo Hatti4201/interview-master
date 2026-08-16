@@ -52,6 +52,16 @@ jobs:
           echo "IMAGE_URI=$IMAGE_URI" >> "$GITHUB_ENV"
       - name: Block vulnerable images
         run: |
+          for attempt in {1..12}; do
+            if aws ecr describe-image-scan-findings --repository-name "$ECR_REPOSITORY" --image-id imageTag="$COMMIT_SHA" >/dev/null 2>&1; then
+              break
+            fi
+            if [ "$attempt" -eq 12 ]; then
+              echo "ECR scan did not start within 60 seconds" >&2
+              exit 1
+            fi
+            sleep 5
+          done
           aws ecr wait image-scan-complete --repository-name "$ECR_REPOSITORY" --image-id imageTag="$COMMIT_SHA"
           BLOCKERS="$(aws ecr describe-image-scan-findings --repository-name "$ECR_REPOSITORY" --image-id imageTag="$COMMIT_SHA" --query 'length(imageScanFindings.findings[?severity==`CRITICAL` || severity==`HIGH`])' --output text)"
           test "$BLOCKERS" = "0"
