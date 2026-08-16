@@ -1,0 +1,69 @@
+name: Deploy Development
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-development
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    environment: development
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 20
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      COMMIT_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+      ECR_REGISTRY: 412541033681.dkr.ecr.us-west-2.amazonaws.com
+      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+      LAMBDA_FUNCTION: ${{ vars.LAMBDA_FUNCTION }}
+      FRONTEND_BUCKET: ${{ vars.FRONTEND_BUCKET }}
+    steps:
+      - name: Check out tested commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.COMMIT_SHA }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-session-name: interview-master-dev-${{ github.run_id }}
+      - name: Log in to Dev ECR
+        run: aws ecr get-login-password | docker login --username AWS --password-stdin "$ECR_REGISTRY"
+      - name: Build and push API image
+        run: |
+          IMAGE_URI="$ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_SHA"
+          if ! aws ecr describe-images --repository-name "$ECR_REPOSITORY" --image-ids imageTag="$COMMIT_SHA" >/dev/null 2>&1; then
+            docker build --platform linux/arm64 --provenance=false --tag "$IMAGE_URI" .
+            docker push "$IMAGE_URI"
+          fi
+          echo "IMAGE_URI=$IMAGE_URI" >> "$GITHUB_ENV"
+      - name: Block vulnerable images
+        run: |
+          aws ecr wait image-scan-complete --repository-name "$ECR_REPOSITORY" --image-id imageTag="$COMMIT_SHA"
+          BLOCKERS="$(aws ecr describe-image-scan-findings --repository-name "$ECR_REPOSITORY" --image-id imageTag="$COMMIT_SHA" --query 'length(imageScanFindings.findings[?severity==`CRITICAL` || severity==`HIGH`])' --output text)"
+          test "$BLOCKERS" = "0"
+      - name: Deploy API
+        run: |
+          aws lambda update-function-code --function-name "$LAMBDA_FUNCTION" --image-uri "$IMAGE_URI" >/dev/null
+          aws lambda wait function-updated-v2 --function-name "$LAMBDA_FUNCTION"
+      - name: Deploy frontend
+        run: aws s3 sync frontend/ "s3://$FRONTEND_BUCKET/" --delete --only-show-errors
+      - name: Verify deployment
+        run: |
+          STATE="$(aws lambda get-function-configuration --function-name "$LAMBDA_FUNCTION" --query State --output text)"
+          test "$STATE" = "Active"
+          aws s3api head-bucket --bucket "$FRONTEND_BUCKET"
+          aws sts get-caller-identity --query Arn --output text
